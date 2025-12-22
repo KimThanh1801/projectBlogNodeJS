@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Layout, Button, Grid, Avatar, Input, Dropdown, Modal } from "antd"
 import { MenuOutlined, SearchOutlined } from "@ant-design/icons"
-// import LoginForm from "../users/LoginForm"
-// import RegisterForm from "../users/RegisterForm"
+import LoginForm from "../users/LoginForm"
+import RegisterForm from "../users/RegisterForm"
 
 const { Header } = Layout
 const { useBreakpoint } = Grid
@@ -67,7 +67,7 @@ const AppHeader = () => {
       </Header>
 
       {/* Modal đăng nhập / đăng ký */}
-      {/* <Modal
+      <Modal
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
@@ -86,7 +86,7 @@ const AppHeader = () => {
             onSwitchToLogin={() => setActiveTab("login")}
           />
         )}
-      </Modal> */}
+      </Modal>
     </>
   )
 }
