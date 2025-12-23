@@ -1,13 +1,18 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+export interface CreatePostDto {
+  userId: number;
+  content: string;
+  emoji?: string;
+  image?: string;
+}
 
-export class CreatePostDto {
-  @IsString()
-  @IsNotEmpty()
-  title: string;
 
-  @IsString()
-  @IsOptional()
-  content?: string;
+export interface UpdatePostDto {
+  content: string;
+}
 
-  // authorId lấy từ user đăng nhập
+
+export interface CreateCommentDto {
+  postId: number;
+  author: string;
+  content: string;
 }

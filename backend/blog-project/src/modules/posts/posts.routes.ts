@@ -1,13 +1,17 @@
-import { Router } from 'express';
-import { postController } from './posts.controllers';
-// import { authMiddleware } from '../../middleware/auth.middleware'; // (Tùy chọn) Middleware xác thực
+import express from "express";
+import { PostsController } from "./posts.controllers";
 
-const router = Router();
 
-// Endpoint để tạo một bài post mới
-// POST /api/posts/
-router.post('/', /* authMiddleware, */ postController.createPost);
+const router = express.Router();
 
-// Các endpoint khác: GET, PUT, DELETE...
+
+router.get("/", PostsController.getAllPosts);
+router.post("/", PostsController.createPost);
+router.get("/:id/comments", PostsController.getComments);
+router.post("/:id/comments", PostsController.addComment);
+router.delete("/:id", PostsController.deletePost);
+router.put("/:id", PostsController.editPost);
+router.post("/:id/like", PostsController.likePost);
+
 
 export default router;
