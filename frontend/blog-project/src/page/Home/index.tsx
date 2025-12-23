@@ -1,83 +1,78 @@
+import { useEffect, useState } from "react";
 import CreatePost from "../../core/components/blog/CreatePost";
+import CreatePostPageModal from "../../core/components/blog/CreatePostPage";
 import { PostCard } from "../../core/components/blog/PostCard";
+import { Spin, message } from "antd";
+import { getPosts, type Post } from "../../api/postsAPI";
 
 export default function Home() {
-  const posts = [
-    {
-      author: {
-        name: "Nguyễn Văn An",
-        avatar:
-          "https://img.tripi.vn/cdn-cgi/image/width=700,height=700/https://gcs.tripi.vn/public-tripi/tripi-feed/img/482740lTq/anh-mo-ta.png",
-        time: "2 giờ trước",
-      },
-      content: "Hôm nay thời tiết thật đẹp!",
-      image:
-        "https://img.tripi.vn/cdn-cgi/image/width=700,height=700/https://gcs.tripi.vn/public-tripi/tripi-feed/img/482740lTq/anh-mo-ta.png",
-      likes: 124,
-      commentCount: 23,
-      comments: [
-        { id: 1, author: "Mai", content: "Đẹp thật 😍" },
-        { id: 2, author: "Hùng", content: "Trời mát ghê" },
-        { id: 3, author: "Lan", content: "Đi chơi thôi" },
-        { id: 4, author: "Tuấn", content: "Chụp ảnh ở đâu vậy?" },
-      ],
-      shares: 8,
-    },
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
 
-    {
-      author: {
-        name: "Trần Thị Mai",
-        avatar: "/placeholder.svg",
-        time: "4 giờ trước",
-      },
-      content:
-        "Vừa hoàn thành dự án mới! Cảm ơn team đã hỗ trợ nhiệt tình 🎉",
-      likes: 89,
-      commentCount: 15,
-      comments: [],
-      shares: 3,
-    },
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const data = await getPosts();
+      setPosts(data);
+    } catch (err: any) {
+      message.error(err.message || "Lỗi khi tải bài viết");
+    }
+    setLoading(false);
+  };
 
-    {
-      author: {
-        name: "Lê Văn Hùng",
-        avatar: "/placeholder.svg",
-        time: "6 giờ trước",
-      },
-      content:
-        "Chia sẻ một số tips làm việc hiệu quả hơn...",
-      image: "/productivity-workspace-desk-setup.jpg",
-      likes: 256,
-      commentCount: 42,
-      comments: [],
-      shares: 18,
-    },
+  useEffect(() => { fetchPosts(); }, []);
 
-    {
-      author: {
-        name: "Phạm Thị Hương",
-        avatar: "/placeholder.svg",
-        time: "8 giờ trước",
-      },
-      content:
-        "Cuối tuần này có ai muốn cùng đi cafe không?",
-      likes: 67,
-      commentCount: 31,
-      comments: [],
-      shares: 5,
-    },
-  ];
+  const handleEdit = (post: Post) => {
+    setEditingPost(post);
+    setShowModal(true);
+  };
+
+  const handleModalClose = () => {
+    setEditingPost(null);
+    setShowModal(false);
+  };
+
+  if (loading) return <Spin tip="Đang tải bài viết..." />;
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#ffe4e6" }}>
       <main style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-        <CreatePost />
+        {/* Tạo bài viết mới */}
+        <CreatePost onPostCreated={fetchPosts} />
 
-        <div style={{ marginTop: 24 }}>
-          {posts.map((post, index) => (
-            <PostCard key={index} {...post} />
+        {/* Danh sách bài viết */}
+        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              postId={post.id}
+              author={{
+                name: `User ${post.userId}`,
+                avatar: "/placeholder.svg",
+                time: new Date(post.createdAt).toLocaleString(),
+              }}
+              content={post.content}
+              likes={post.likes || 0}
+              commentCount={post.comments?.length || 0}
+              comments={post.comments || []}
+              shares={post.shares || 0}
+              image={post.image}
+              emoji={post.emoji}
+              onEdit={() => handleEdit(post)}
+              onDelete={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
+            />
           ))}
         </div>
+
+        {/* Modal tạo/chỉnh sửa bài viết */}
+        <CreatePostPageModal
+          visible={showModal}
+          onClose={handleModalClose}
+          postToEdit={editingPost}
+          onPostCreated={fetchPosts}
+        />
       </main>
     </div>
   );
